@@ -4,6 +4,7 @@ include(GoogleTest)
 
 add_executable(
     coins_tests
+    tuple_partial_sum_tests.cpp
     currency_tests.cpp
 )
 target_link_libraries(

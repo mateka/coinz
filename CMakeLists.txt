@@ -15,7 +15,9 @@ add_library(coinz INTERFACE)
 target_sources(
     coinz
     INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/coinz/tuple_partial_sum.hpp>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/coinz/currency.hpp>
+        $<INSTALL_INTERFACE:include/coinz/tuple_partial_sum.hpp>
         $<INSTALL_INTERFACE:include/coinz/currency.hpp>
 )
 target_compile_features(
