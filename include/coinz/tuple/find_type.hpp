@@ -20,24 +20,36 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#pragma once
 
-#include <coinz/currency.hpp>
+#include <tuple>
+#include <type_traits>
 
-// clang-format: off
-#include <gtest/gtest.h>
+namespace coinz::tuple {
 
-// clang-format: on
+namespace details {
+    template<typename T, ::std::size_t I, typename... Args>
+    ::std::size_t find_type(::std::tuple<Args...> const &t)
+    {
+        if constexpr (!::std::is_same_v<
+                          ::std::remove_cv_t<T>,
+                          ::std::remove_cv_t<::std::tuple_element_t<
+                              I,
+                              ::std::tuple<Args...>>>>) {
+            auto constexpr next = I + 1;
+            static_assert(
+                next < ::std::tuple_size_v<::std::tuple<Args...>>,
+                "Type not found in tuple");
+            return find_type<T, next>(t);
+        }
+        return I;
+    }
+}  // namespace details
 
-TEST(CurrencyTest, get_by_index)
+template<typename T, typename... Args>
+::std::size_t find_type(::std::tuple<Args...> const &t)
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<0>());
-    EXPECT_EQ(2.5f, dummy.get<1>());
+    return details::find_type<T, 0>(t);
 }
 
-TEST(CurrencyTest, get_by_type)
-{
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<int>());
-    EXPECT_EQ(2.5f, dummy.get<float>());
-}
+}  // namespace coinz::tuple

@@ -21,7 +21,7 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <coinz/tuple_partial_sum.hpp>
+#include <coinz/tuple/partial_sum.hpp>
 #include <tuple>
 
 
@@ -35,7 +35,7 @@ TEST(TuplePartialSumTest, no_sum_returns_init)
 {
     auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
     auto const init   = 3.14f;
-    auto const result = coinz::tuple_partial_sum<0>(
+    auto const result = coinz::tuple::partial_sum<0>(
         dummy, [](auto const a1, auto const a2) { return a1 + a2; }, init);
     EXPECT_EQ(init, result);
 }
@@ -43,7 +43,7 @@ TEST(TuplePartialSumTest, no_sum_returns_init)
 TEST(TuplePartialSumTest, sum_only_the_first)
 {
     auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
-    auto const result = coinz::tuple_partial_sum<1>(
+    auto const result = coinz::tuple::partial_sum<1>(
         dummy, [](auto const a1, auto const a2) { return a1 + a2; }, 0.0f);
     EXPECT_EQ(1, result);
 }
@@ -51,7 +51,7 @@ TEST(TuplePartialSumTest, sum_only_the_first)
 TEST(TuplePartialSumTest, sum_three_elements)
 {
     auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
-    auto const result = coinz::tuple_partial_sum<3>(
+    auto const result = coinz::tuple::partial_sum<3>(
         dummy, [](auto const a1, auto const a2) { return a1 + a2; }, 0.0f);
     EXPECT_EQ(5.5f, result);
 }
@@ -60,7 +60,7 @@ TEST(TuplePartialSumTest, sum_all_elements)
 {
     auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5f};
     auto const result =
-        coinz::tuple_partial_sum<::std::tuple_size_v<decltype(dummy)>>(
+        coinz::tuple::partial_sum<::std::tuple_size_v<decltype(dummy)>>(
             dummy, [](auto const a1, auto const a2) { return a1 + a2; }, 0.0f);
     EXPECT_EQ(9.0f, result);
 }
@@ -79,7 +79,7 @@ TEST(TuplePartialSumTest, sum_with_transform)
                                     dummy_wrapper(2.5f),
                                     dummy_wrapper(2u),
                                     dummy_wrapper(3.5f)};
-    auto const result = coinz::tuple_partial_sum<1>(
+    auto const result = coinz::tuple::partial_sum<1>(
         dummy,
         [](auto const a1, auto const a2) { return a1.value + a2; },
         0.0f);

@@ -21,23 +21,28 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <coinz/currency.hpp>
+#include <coinz/tuple/find_type.hpp>
+#include <tuple>
 
 // clang-format: off
 #include <gtest/gtest.h>
 
 // clang-format: on
 
-TEST(CurrencyTest, get_by_index)
+TEST(TupleFindTypeTest, find_first)
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<0>());
-    EXPECT_EQ(2.5f, dummy.get<1>());
+    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(0, coinz::tuple::find_type<int>(dummy));
 }
 
-TEST(CurrencyTest, get_by_type)
+TEST(TupleFindTypeTest, find_middle)
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<int>());
-    EXPECT_EQ(2.5f, dummy.get<float>());
+    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(1, coinz::tuple::find_type<float>(dummy));
+}
+
+TEST(TupleFindTypeTest, find_last)
+{
+    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(3, coinz::tuple::find_type<double>(dummy));
 }

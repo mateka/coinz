@@ -21,23 +21,14 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <coinz/currency.hpp>
+#include <coinz/tuple/find_type.hpp>
+#include <tuple>
 
-// clang-format: off
-#include <gtest/gtest.h>
+class not_found {
+};
 
-// clang-format: on
-
-TEST(CurrencyTest, get_by_index)
+int main()
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<0>());
-    EXPECT_EQ(2.5f, dummy.get<1>());
-}
-
-TEST(CurrencyTest, get_by_type)
-{
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<int>());
-    EXPECT_EQ(2.5f, dummy.get<float>());
+    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    // return coinz::tuple::find_type<not_found>(dummy);
 }

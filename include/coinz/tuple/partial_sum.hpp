@@ -24,16 +24,17 @@
 
 #include <tuple>
 
-namespace coinz {
+
+namespace coinz::tuple {
 
 template<std::size_t N, typename Op, typename Result, typename... Args>
-auto tuple_partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
+auto partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
     -> Result
 {
     if constexpr (N != 0) {
         auto constexpr I = N - 1;
         if constexpr (I > 0) {
-            return op(::std::get<I>(t), tuple_partial_sum<I>(t, op, init));
+            return op(::std::get<I>(t), partial_sum<I>(t, op, init));
         }
         else {
             return op(::std::get<0>(t), init);
@@ -42,4 +43,4 @@ auto tuple_partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
     return init;
 }
 
-}  // namespace coinz
+}  // namespace coinz::tuple
