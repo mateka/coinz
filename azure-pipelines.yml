@@ -1,0 +1,88 @@
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
+stages:
+  - stage: Build_and_Test
+    displayName: Build & Test
+    jobs:
+      - job: test_buils
+        displayName: Test builds
+        strategy:
+          maxParallel: 2
+          matrix:
+            linux_gcc_release:
+              build_type: Release
+              vm_image: 'ubuntu-16.04'
+              vcpkg_libs: 'gtest'
+              cmake_additional_options: "-E env CXXFLAGS='--coverage' cmake"
+            linux_gcc_debug:
+              build_type: Debug
+              vm_image: 'ubuntu-16.04'
+              vcpkg_libs: 'gtest'
+              cmake_additional_options: "-E env CXXFLAGS='--coverage' cmake"
+            windows_release:
+              build_type: Release
+              vm_image: 'windows-2019'
+              vcpkg_libs: 'gtest:x64-windows'
+              cmake_additional_options: ''
+            windows_debug:
+              build_type: Debug
+              vm_image: 'windows-2019'
+              vcpkg_libs: 'gtest:x64-windows'
+              cmake_additional_options: ''
+        pool:
+          vmImage: $(vm_image)
+        variables:
+          vcpkg: $(Agent.BuildDirectory)/vcpkg
+        steps:
+          - pwsh: |
+              sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+              sudo apt-get update
+              sudo apt-get install cmake g++-8 python-setuptools python-dev build-essential
+              sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100
+              sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100
+              sudo pip install --upgrade pip
+              sudo pip install cpp-coveralls
+            displayName: 'Update g++'
+            condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+          - pwsh: git clone https://github.com/microsoft/vcpkg.git $(vcpkg)
+            workingDirectory: $(Agent.BuildDirectory)
+            displayName: Clone VCPKG
+          - bash: |
+              ./bootstrap-vcpkg.sh
+              echo '`nset(VCPKG_BUILD_TYPE release)' >> ./triplets/${VCPKG_TRIPLET}.cmake;
+              ./vcpkg install $(vcpkg_libs)
+            workingDirectory: $(vcpkg)
+            displayName: '[vcpkg] install: $(vcpkg_libs)'
+          - task: CMake@1
+            inputs:
+              workingDirectory: build
+              cmakeArgs: $(cmake_additional_options) -DCMAKE_TOOLCHAIN_FILE=$(vcpkg)/scripts/buildsystems/vcpkg.cmake $(Build.Repository.LocalPath)
+          - task: CMake@1
+            inputs:
+              workingDirectory: build
+              cmakeArgs: --build . --config $(build_type)
+          - pwsh: |
+              ctest -C $(build_type) --output-on-failure --no-compress-output -T Test
+              $xsl = "../ctest-to-junit.xsl"
+              $ctest_xml = (Get-ChildItem "Testing/*/Test.xml").FullName
+              $junit_xml = "Testing/results-junit.xml"
+              $xslt = New-Object System.Xml.Xsl.XslCompiledTransform
+              $xslt.Load($xsl)
+              $xslt.Transform($ctest_xml, $junit_xml)
+            workingDirectory: $(Build.SourcesDirectory)/build
+            displayName: Run tests
+          - bash: |
+              for filename in `find .. | egrep '\.cpp'`; 
+              do 
+                gcov-5 -n -o . $filename > /dev/null; 
+              done
+              bash <(curl -s https://codecov.io/bash)
+            workingDirectory: $(Build.SourcesDirectory)/build
+            displayName: 'Calculate code coverage'
+            condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: 'Testing/results-junit.xml'
+              searchFolder: $(Build.SourcesDirectory)/build
+
