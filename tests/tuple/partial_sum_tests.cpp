@@ -24,10 +24,8 @@
 #include <coinz/tuple/partial_sum.hpp>
 #include <tuple>
 
-
 // clang-format: off
 #include <gtest/gtest.h>
-
 
 // clang-format: on
 
@@ -84,4 +82,48 @@ TEST(TuplePartialSumTest, sum_with_transform)
         [](auto const a1, auto const a2) { return a1.value + a2; },
         0.0f);
     EXPECT_EQ(1, result);
+}
+
+TEST(TuplePartialSumByIndexTest, sum_first)
+{
+    auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
+    auto const result = coinz::tuple::partial_sum_by_index(
+        dummy,
+        ::std::index_sequence<0>{},
+        [](auto const a1, auto const a2) { return a1 + a2; },
+        0.0f);
+    EXPECT_EQ(1, result);
+}
+
+TEST(TuplePartialSumByIndexTest, sum_third)
+{
+    auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
+    auto const result = coinz::tuple::partial_sum_by_index(
+        dummy,
+        ::std::index_sequence<2>{},
+        [](auto const a1, auto const a2) { return a1 + a2; },
+        0.0f);
+    EXPECT_EQ(2, result);
+}
+
+TEST(TuplePartialSumByIndexTest, sum_two)
+{
+    auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
+    auto const result = coinz::tuple::partial_sum_by_index(
+        dummy,
+        ::std::index_sequence<1, 3>{},
+        [](auto const a1, auto const a2) { return a1 + a2; },
+        0.0f);
+    EXPECT_EQ(6.0f, result);
+}
+
+TEST(TuplePartialSumByIndexTest, sum_last_three)
+{
+    auto const dummy  = ::std::tuple{1, 2.5f, 2u, 3.5f};
+    auto const result = coinz::tuple::partial_sum_by_index(
+        dummy,
+        ::std::index_sequence<1, 2, 3>{},
+        [](auto const a1, auto const a2) { return a1 + a2; },
+        0.0f);
+    EXPECT_EQ(8.0f, result);
 }

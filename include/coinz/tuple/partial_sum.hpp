@@ -22,25 +22,37 @@
  */
 #pragma once
 
+#include <coinz/binary_op_aplicator.hpp>
+#include <iostream>
 #include <tuple>
 
 
 namespace coinz::tuple {
 
+template<typename Op, typename Result, typename Tuple, ::std::size_t... Idx>
+auto partial_sum_by_index(
+    Tuple const &t, ::std::index_sequence<Idx...>, Op op, Result init = {})
+    -> Result
+{
+    auto op_ = binary_op_applicator(
+        ::std::forward<Op>(op), ::std::forward<Result>(init));
+    return op_(std::get<Idx>(t)...);
+}
+
 template<std::size_t N, typename Op, typename Result, typename... Args>
 auto partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
     -> Result
 {
-    if constexpr (N != 0) {
-        auto constexpr I = N - 1;
-        if constexpr (I > 0) {
-            return op(::std::get<I>(t), partial_sum<I>(t, op, init));
-        }
-        else {
-            return op(::std::get<0>(t), init);
-        }
+    if constexpr (N == 0) {
+        return init;
     }
-    return init;
+    else {
+        return partial_sum_by_index(
+            t,
+            ::std::make_index_sequence<N>(),
+            ::std::forward<Op>(op),
+            ::std::forward<Result>(init));
+    }
 }
 
 }  // namespace coinz::tuple
