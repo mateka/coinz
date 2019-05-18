@@ -9,6 +9,7 @@ add_executable(
     coinz_tests
     tuple/partial_sum_tests.cpp
     tuple/find_type_tests.cpp
+    binary_op_aplicator_tests.cpp
     currency_tests.cpp
 )
 target_link_libraries(
