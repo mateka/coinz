@@ -23,9 +23,7 @@
 #pragma once
 
 #include <coinz/binary_to_nary.hpp>
-#include <iostream>
 #include <tuple>
-
 
 namespace coinz::tuple {
 
