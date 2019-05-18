@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include <coinz/binary_op_aplicator.hpp>
+#include <coinz/binary_to_nary.hpp>
 #include <iostream>
 #include <tuple>
 
@@ -34,8 +34,8 @@ auto partial_sum_by_index(
     Tuple const &t, ::std::index_sequence<Idx...>, Op op, Result init = {})
     -> Result
 {
-    auto op_ = binary_op_applicator(
-        ::std::forward<Op>(op), ::std::forward<Result>(init));
+    auto op_ =
+        binary_to_nary(::std::forward<Op>(op), ::std::forward<Result>(init));
     return op_(std::get<Idx>(t)...);
 }
 

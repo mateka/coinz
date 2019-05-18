@@ -22,12 +22,15 @@
  */
 #pragma once
 
+#include <utility>
+
+
 namespace coinz {
 
 template<typename BinaryOperator, typename Init>
-class binary_op_applicator {
+class binary_to_nary {
 public:
-    binary_op_applicator(BinaryOperator op, Init init = {})
+    binary_to_nary(BinaryOperator op, Init init = {})
         : op_{::std::move(op)}, init_{::std::move(init)}
     {
     }

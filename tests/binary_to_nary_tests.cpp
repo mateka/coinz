@@ -21,7 +21,7 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <coinz/binary_op_aplicator.hpp>
+#include <coinz/binary_to_nary.hpp>
 
 // clang-format: off
 #include <gtest/gtest.h>
@@ -30,35 +30,30 @@
 
 TEST(BinaryOpApplicatorTest, single_value)
 {
-    auto wrapper =
-        coinz::binary_op_applicator{[](int a, int b) { return a + b; }, 0};
+    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
     EXPECT_EQ(1, wrapper(1));
 }
 
 TEST(BinaryOpApplicatorTest, two_values)
 {
-    auto wrapper =
-        coinz::binary_op_applicator{[](int a, int b) { return a + b; }, 0};
+    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
     EXPECT_EQ(4, wrapper(1, 3));
 }
 
 TEST(BinaryOpApplicatorTest, three_values)
 {
-    auto wrapper =
-        coinz::binary_op_applicator{[](int a, int b) { return a + b; }, 0};
+    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
     EXPECT_EQ(8, wrapper(1, 3, 4));
 }
 
 TEST(BinaryOpApplicatorTest, four_values)
 {
-    auto wrapper =
-        coinz::binary_op_applicator{[](int a, int b) { return a + b; }, 0};
+    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
     EXPECT_EQ(10, wrapper(1, 3, 4, 2));
 }
 
 TEST(BinaryOpApplicatorTest, five_values)
 {
-    auto wrapper =
-        coinz::binary_op_applicator{[](int a, int b) { return a + b; }, 0};
+    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
     EXPECT_EQ(111, wrapper(1, 3, 4, 2, 101));
 }
