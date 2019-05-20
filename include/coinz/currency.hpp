@@ -22,10 +22,62 @@
  */
 #pragma once
 
+#include <coinz/make_tail_index_sequence.hpp>
+#include <coinz/tuple/partial_sum.hpp>
+#include <cstdint>
+#include <ratio>
 #include <tuple>
 
-
 namespace coinz {
+
+namespace details {
+    template<typename... Ts>
+    struct amount_type {
+        using type                  = ::std::common_type_t<Ts...>;
+        static constexpr auto value = type{1};
+    };
+
+    template<::std::intmax_t A, ::std::intmax_t B, typename... Rest>
+    struct amount_type<::std::ratio<A, B>, Rest...> {
+        using type = ::std::ratio_multiply<
+            ::std::ratio<A, B>,
+            typename amount_type<Rest...>::type>;
+        static constexpr auto value = type{};
+    };
+
+    template<::std::intmax_t A, ::std::intmax_t B>
+    struct amount_type<::std::ratio<A, B>> {
+        using type                  = std::ratio<A, B>;
+        static constexpr auto value = type{};
+    };
+
+    template<typename... Ts>
+    using amount_type_t = typename amount_type<Ts...>::type;
+
+    template<typename... Ts>
+    constexpr amount_type_t<Ts...> amount_type_v = amount_type<Ts...>::value;
+
+    struct multiply {
+        template<typename A, typename B>
+        constexpr auto operator()(A const &a, B const &b) const
+        {
+            return a * b;
+        }
+
+        template<
+            ::std::intmax_t A,
+            ::std::intmax_t B,
+            ::std::intmax_t C,
+            ::std::intmax_t D>
+        constexpr auto
+        operator()(::std::ratio<A, B> a, ::std::ratio<C, D> b) const
+            -> amount_type_t<decltype(a), decltype(b)>
+        {
+            return {};
+        }
+    };
+
+}  // namespace details
 
 template<typename... Parts>
 class currency {
@@ -36,15 +88,19 @@ public:
     }
 
     template<std::size_t I>
-    constexpr auto get() const noexcept
+    constexpr auto amount_n() const noexcept
     {
-        return ::std::get<I>(m_parts);
+        return tuple::partial_sum_by_index(
+            m_parts,
+            make_tail_index_sequence<I, sizeof...(Parts)>{},
+            details::multiply{},
+            details::amount_type_v<Parts...>);
     }
 
-    template<typename Type>
-    constexpr auto get() const noexcept
+    template<std::size_t I>
+    constexpr auto sibling_amount() const noexcept
     {
-        return ::std::get<Type>(m_parts);
+        return ::std::get<I>(m_parts);
     }
 
 private:

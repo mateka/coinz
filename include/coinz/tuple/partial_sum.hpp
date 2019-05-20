@@ -25,21 +25,20 @@
 #include <coinz/binary_to_nary.hpp>
 #include <tuple>
 
+
 namespace coinz::tuple {
 
-template<typename Op, typename Result, typename Tuple, ::std::size_t... Idx>
+template<typename Op, typename Init, typename Tuple, ::std::size_t... Idx>
 auto partial_sum_by_index(
-    Tuple const &t, ::std::index_sequence<Idx...>, Op op, Result init = {})
-    -> Result
+    Tuple const &t, ::std::index_sequence<Idx...>, Op op, Init init = {})
 {
     auto op_ =
-        binary_to_nary(::std::forward<Op>(op), ::std::forward<Result>(init));
+        binary_to_nary(::std::forward<Op>(op), ::std::forward<Init>(init));
     return op_(std::get<Idx>(t)...);
 }
 
-template<std::size_t N, typename Op, typename Result, typename... Args>
-auto partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
-    -> Result
+template<std::size_t N, typename Op, typename Init, typename... Args>
+auto partial_sum(::std::tuple<Args...> const &t, Op op, Init init = {})
 {
     if constexpr (N == 0) {
         return init;
@@ -49,7 +48,7 @@ auto partial_sum(::std::tuple<Args...> const &t, Op op, Result init = {})
             t,
             ::std::make_index_sequence<N>(),
             ::std::forward<Op>(op),
-            ::std::forward<Result>(init));
+            ::std::forward<Init>(init));
     }
 }
 

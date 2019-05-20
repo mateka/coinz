@@ -28,16 +28,18 @@
 
 // clang-format: on
 
-TEST(CurrencyTest, get_by_index)
+TEST(CurrencyIndexTest, check_sibling_amount_int)
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<0>());
-    EXPECT_EQ(2.5f, dummy.get<1>());
+    // 1$ = 10 cents, store amount with 1/50 cent accuracy
+    constexpr auto dummy = coinz::currency{100, 50};
+    EXPECT_EQ(100, dummy.sibling_amount<0>());
+    EXPECT_EQ(50, dummy.sibling_amount<1>());
 }
 
-TEST(CurrencyTest, get_by_type)
+TEST(CurrencyIndexTest, check_amount_n_int)
 {
-    constexpr auto dummy = coinz::currency<int, float>{1, 2.5f};
-    EXPECT_EQ(1, dummy.get<int>());
-    EXPECT_EQ(2.5f, dummy.get<float>());
+    // 1$ = 10 cents, store amount with 1/50 cent accuracy
+    constexpr auto dummy = coinz::currency{100, 50};
+    EXPECT_EQ(100 * 50, dummy.amount_n<0>());
+    EXPECT_EQ(50, dummy.amount_n<1>());
 }
