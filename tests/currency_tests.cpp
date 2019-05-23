@@ -99,3 +99,19 @@ TEST(CurrencyIndexTest, check_amount_n_custom_types)
     EXPECT_EQ(copper{64}, dummy.amount_n<1>());
     EXPECT_EQ(copper{1}, dummy.amount_n<2>());
 }
+
+TEST(CurrencyTypeTest, check_sibling_amount)
+{
+    constexpr auto dummy = coinz::currency{gold{12}, silver{64}, copper{1}};
+    EXPECT_EQ(gold{12}, dummy.sibling_amount<gold>());
+    EXPECT_EQ(silver{64}, dummy.sibling_amount<silver>());
+    EXPECT_EQ(copper{1}, dummy.sibling_amount<copper>());
+}
+
+TEST(CurrencyTypeTest, check_amount_n)
+{
+    constexpr auto dummy = coinz::currency{gold{12}, silver{64}, copper{1}};
+    EXPECT_EQ(copper{12 * 64}, dummy.amount_n<gold>());
+    EXPECT_EQ(copper{64}, dummy.amount_n<silver>());
+    EXPECT_EQ(copper{1}, dummy.amount_n<copper>());
+}

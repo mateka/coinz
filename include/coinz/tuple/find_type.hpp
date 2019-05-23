@@ -28,28 +28,37 @@
 namespace coinz::tuple {
 
 namespace details {
-    template<typename T, ::std::size_t I, typename... Args>
-    ::std::size_t find_type(::std::tuple<Args...> const &t)
-    {
-        if constexpr (!::std::is_same_v<
-                          ::std::remove_cv_t<T>,
-                          ::std::remove_cv_t<::std::tuple_element_t<
-                              I,
-                              ::std::tuple<Args...>>>>) {
-            auto constexpr next = I + 1;
-            static_assert(
-                next < ::std::tuple_size_v<::std::tuple<Args...>>,
-                "Type not found in tuple");
-            return find_type<T, next>(t);
-        }
-        return I;
-    }
+    template<typename T1, typename T2>
+    constexpr bool is_same_v =
+        ::std::is_same_v<::std::remove_cv_t<T1>, ::std::remove_cv_t<T2>>;
+
+    template<typename T, ::std::size_t I, typename Tuple, bool Found = false>
+    struct find_type
+        : find_type<
+              T,
+              I + 1,
+              Tuple,
+              details::is_same_v<T, ::std::tuple_element_t<I + 1, Tuple>>> {
+    };
+
+    template<typename T, ::std::size_t I, typename Tuple>
+    struct find_type<T, I, Tuple, true>
+        : ::std::integral_constant<::std::size_t, I> {
+        static_assert(
+            I < ::std::tuple_size_v<Tuple>, "Type not found in tuple");
+    };
 }  // namespace details
 
-template<typename T, typename... Args>
-::std::size_t find_type(::std::tuple<Args...> const &t)
-{
-    return details::find_type<T, 0>(t);
-}
+template<typename T, typename Tuple>
+struct find_type
+    : details::find_type<
+          T,
+          0,
+          Tuple,
+          details::is_same_v<T, ::std::tuple_element_t<0, Tuple>>> {
+};
+
+template<typename T, typename Tuple>
+constexpr ::std::size_t find_type_v = find_type<T, Tuple>::value;
 
 }  // namespace coinz::tuple

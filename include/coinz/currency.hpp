@@ -24,6 +24,7 @@
 
 #include <coinz/make_tail_index_sequence.hpp>
 #include <coinz/tuple/partial_sum.hpp>
+#include <coinz/tuple/find_type.hpp>
 #include <tuple>
 #include <type_traits>
 
@@ -49,12 +50,15 @@ namespace details {
     struct value_getter<T, true> {
         constexpr auto operator()(T const &v) const { return v; }
     };
+
+	template<typename T>
+	using bare_cv_type = ::std::remove_pointer_t<::std::remove_reference_t<T>>;
 }  // namespace details
 
 template<typename T>
 struct value_type
     : public details::
-          value_type<T, ::std::is_arithmetic_v<::std::remove_cvref_t<T>>> {
+          value_type<T, ::std::is_arithmetic_v<details::bare_cv_type<T>>> {
 };
 
 template<typename T>
@@ -63,7 +67,7 @@ using value_t = typename value_type<T>::type;
 template<typename T>
 struct value_getter
     : public details::
-          value_getter<T, ::std::is_arithmetic_v<::std::remove_cvref_t<T>>> {
+          value_getter<T, ::std::is_arithmetic_v<details::bare_cv_type<T>>> {
 };
 
 template<typename T, typename... Ts>
@@ -107,6 +111,19 @@ public:
     constexpr auto sibling_amount() const noexcept
     {
         return ::std::get<I>(m_parts);
+    }
+
+	
+    template<typename T>
+    constexpr auto amount_n() const noexcept
+    {
+        return amount_n<tuple::find_type_v<T, decltype(m_parts)>>();
+    }
+
+    template<typename T>
+    constexpr auto sibling_amount() const noexcept
+    {
+        return sibling_amount<tuple::find_type_v<T, decltype(m_parts)>>();
     }
 
 private:

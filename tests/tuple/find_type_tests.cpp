@@ -31,18 +31,18 @@
 
 TEST(TupleFindTypeTest, find_first)
 {
-    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(0, coinz::tuple::find_type<int>(dummy));
+    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(0, (coinz::tuple::find_type_v<int, decltype(dummy)>) );
 }
 
 TEST(TupleFindTypeTest, find_middle)
 {
-    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(1, coinz::tuple::find_type<float>(dummy));
+    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(2, (coinz::tuple::find_type_v<decltype(2u), decltype(dummy)>) );
 }
 
 TEST(TupleFindTypeTest, find_last)
 {
-    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(3, coinz::tuple::find_type<double>(dummy));
+    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
+    EXPECT_EQ(3, (coinz::tuple::find_type_v<double, decltype(dummy)>) );
 }

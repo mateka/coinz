@@ -24,11 +24,12 @@
 #include <coinz/tuple/find_type.hpp>
 #include <tuple>
 
+
 class not_found {
 };
 
 int main()
 {
     auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    // return coinz::tuple::find_type<not_found>(dummy);
+    return coinz::tuple::find_type_v<not_found, decltype(dummy)>;
 }
