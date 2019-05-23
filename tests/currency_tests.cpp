@@ -43,3 +43,59 @@ TEST(CurrencyIndexTest, check_amount_n_int)
     EXPECT_EQ(100 * 50, dummy.amount_n<0>());
     EXPECT_EQ(50, dummy.amount_n<1>());
 }
+
+namespace {
+
+struct gold {
+    explicit constexpr gold(int const amount) : amount_{amount} {}
+    constexpr gold(gold const &) = default;
+
+    constexpr int  value() const { return amount_; }
+    constexpr void value(int const v) { amount_ = v; }
+
+    int amount_;
+};
+
+struct silver {
+    explicit constexpr silver(int const amount) : amount_{amount} {}
+    constexpr silver(silver const &) = default;
+
+    constexpr int  value() const { return amount_; }
+    constexpr void value(int const v) { amount_ = v; }
+
+    int amount_;
+};
+
+struct copper {
+    explicit constexpr copper(int const amount) : amount_{amount} {}
+    constexpr copper(copper const &) = default;
+
+    constexpr int  value() const { return amount_; }
+    constexpr void value(int const v) { amount_ = v; }
+
+    int amount_;
+};
+
+template<typename T>
+bool operator==(T const &a, T const &b)
+{
+    return a.value() == b.value();
+}
+
+}  // namespace
+
+TEST(CurrencyIndexTest, check_sibling_amount_custom_types)
+{
+    constexpr auto dummy = coinz::currency{gold{12}, silver{64}, copper{1}};
+    EXPECT_EQ(gold{12}, dummy.sibling_amount<0>());
+    EXPECT_EQ(silver{64}, dummy.sibling_amount<1>());
+    EXPECT_EQ(copper{1}, dummy.sibling_amount<2>());
+}
+
+TEST(CurrencyIndexTest, check_amount_n_custom_types)
+{
+    constexpr auto dummy = coinz::currency{gold{12}, silver{64}, copper{1}};
+    EXPECT_EQ(copper{12 * 64}, dummy.amount_n<0>());
+    EXPECT_EQ(copper{64}, dummy.amount_n<1>());
+    EXPECT_EQ(copper{1}, dummy.amount_n<2>());
+}

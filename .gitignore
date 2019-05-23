@@ -33,6 +33,10 @@
 
 # CMake builds:
 /build/
+/out/
 
 # VSCode:
 /.vscode/
+
+# VS:
+/.vs/

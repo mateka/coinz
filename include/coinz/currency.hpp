@@ -24,60 +24,63 @@
 
 #include <coinz/make_tail_index_sequence.hpp>
 #include <coinz/tuple/partial_sum.hpp>
-#include <cstdint>
-#include <ratio>
 #include <tuple>
+#include <type_traits>
 
 namespace coinz {
 
 namespace details {
-    template<typename... Ts>
-    struct amount_type {
-        using type                  = ::std::common_type_t<Ts...>;
-        static constexpr auto value = type{1};
+    template<typename T, bool IsNumeric>
+    struct value_type {
+        using type = decltype(::std::declval<T>().value());
     };
 
-    template<::std::intmax_t A, ::std::intmax_t B, typename... Rest>
-    struct amount_type<::std::ratio<A, B>, Rest...> {
-        using type = ::std::ratio_multiply<
-            ::std::ratio<A, B>,
-            typename amount_type<Rest...>::type>;
-        static constexpr auto value = type{};
+    template<typename T>
+    struct value_type<T, true> {
+        using type = T;
     };
 
-    template<::std::intmax_t A, ::std::intmax_t B>
-    struct amount_type<::std::ratio<A, B>> {
-        using type                  = std::ratio<A, B>;
-        static constexpr auto value = type{};
+    template<typename T, bool IsNumeric>
+    struct value_getter {
+        constexpr auto operator()(T const &v) const { return v.value(); }
     };
 
-    template<typename... Ts>
-    using amount_type_t = typename amount_type<Ts...>::type;
-
-    template<typename... Ts>
-    constexpr amount_type_t<Ts...> amount_type_v = amount_type<Ts...>::value;
-
-    struct multiply {
-        template<typename A, typename B>
-        constexpr auto operator()(A const &a, B const &b) const
-        {
-            return a * b;
-        }
-
-        template<
-            ::std::intmax_t A,
-            ::std::intmax_t B,
-            ::std::intmax_t C,
-            ::std::intmax_t D>
-        constexpr auto
-        operator()(::std::ratio<A, B> a, ::std::ratio<C, D> b) const
-            -> amount_type_t<decltype(a), decltype(b)>
-        {
-            return {};
-        }
+    template<typename T>
+    struct value_getter<T, true> {
+        constexpr auto operator()(T const &v) const { return v; }
     };
-
 }  // namespace details
+
+template<typename T>
+struct value_type
+    : public details::
+          value_type<T, ::std::is_arithmetic_v<::std::remove_cvref_t<T>>> {
+};
+
+template<typename T>
+using value_t = typename value_type<T>::type;
+
+template<typename T>
+struct value_getter
+    : public details::
+          value_getter<T, ::std::is_arithmetic_v<::std::remove_cvref_t<T>>> {
+};
+
+template<typename T, typename... Ts>
+struct amount_type : public amount_type<Ts...> {
+};
+
+template<typename T>
+struct amount_type<T> {
+    using type                  = T;
+    static constexpr auto value = type{1};
+};
+
+template<typename... Ts>
+using amount_type_t = typename amount_type<Ts...>::type;
+
+template<typename... Ts>
+constexpr amount_type_t<Ts...> amount_type_v = amount_type<Ts...>::value;
 
 template<typename... Parts>
 class currency {
@@ -93,8 +96,11 @@ public:
         return tuple::partial_sum_by_index(
             m_parts,
             make_tail_index_sequence<I, sizeof...(Parts)>{},
-            details::multiply{},
-            details::amount_type_v<Parts...>);
+            [](auto const a, auto const b) {
+                return amount_type_t<Parts...>{value_getter<decltype(a)>{}(
+                    a) *value_getter<decltype(b)>{}(b)};
+            },
+            amount_type_v<Parts...>);
     }
 
     template<std::size_t I>
