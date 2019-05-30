@@ -24,22 +24,25 @@
 
 #include <utility>
 
-
 namespace coinz {
 
-template<::std::size_t Offset, typename T>
-struct offset_index_sequence;
-
-template<::std::size_t Offset, ::std::size_t... Idx>
-struct offset_index_sequence<Offset, ::std::index_sequence<Idx...>> {
-    using type = ::std::index_sequence<(Offset + Idx)...>;
+template<::std::size_t I, typename... Ts>
+struct get_n {
 };
 
-template<::std::size_t Offset, typename T>
-using offset_index_sequence_t = typename offset_index_sequence<Offset, T>::type;
+template<::std::size_t I, typename First, typename... Ts>
+struct get_n<I, First, Ts...> {
+    static_assert(I <= sizeof...(Ts), "Too large parameter pack index");
 
-template<::std::size_t I, ::std::size_t N>
-using make_tail_index_sequence =
-    offset_index_sequence_t<I, ::std::make_index_sequence<N - I>>;
+    using type = typename get_n<I - 1, Ts...>::type;
+};
+
+template<typename First, typename... Ts>
+struct get_n<0, First, Ts...> {
+    using type = First;
+};
+
+template<::std::size_t I, typename... Ts>
+using get_n_t = typename get_n<I, Ts...>::type;
 
 }  // namespace coinz

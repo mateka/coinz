@@ -22,38 +22,70 @@
  */
 
 #include <coinz/binary_to_nary.hpp>
+#include <ratio>
+#include <type_traits>
+
 
 // clang-format: off
 #include <gtest/gtest.h>
 
+
 // clang-format: on
 
-TEST(BinaryOpApplicatorTest, single_value)
+template<auto N, auto D = 1>
+using r = ::std::ratio<N, D>;
+
+using zero = r<0>;
+
+template<typename A, typename B>
+using op = ::std::ratio_add<A, B>;
+
+TEST(BinaryToNaryTest, single_value)
 {
-    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
-    EXPECT_EQ(1, wrapper(1));
+    using a        = r<1, 2>;
+    using result   = coinz::binary_to_nary_t<op, zero, a>;
+    using expected = op<zero, a>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }
 
-TEST(BinaryOpApplicatorTest, two_values)
+TEST(BinaryToNaryTest, two_values)
 {
-    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
-    EXPECT_EQ(4, wrapper(1, 3));
+    using a        = r<1, 2>;
+    using b        = r<2, 3>;
+    using result   = coinz::binary_to_nary_t<op, zero, a, b>;
+    using expected = op<a, b>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }
 
-TEST(BinaryOpApplicatorTest, three_values)
+TEST(BinaryToNaryTest, three_values)
 {
-    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
-    EXPECT_EQ(8, wrapper(1, 3, 4));
+    using a        = r<1, 2>;
+    using b        = r<2, 3>;
+    using c        = r<1, 4>;
+    using result   = coinz::binary_to_nary_t<op, zero, a, b, c>;
+    using expected = op<op<a, b>, c>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }
 
-TEST(BinaryOpApplicatorTest, four_values)
+TEST(BinaryToNaryTest, four_values)
 {
-    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
-    EXPECT_EQ(10, wrapper(1, 3, 4, 2));
+    using a        = r<1, 2>;
+    using b        = r<2, 3>;
+    using c        = r<1, 4>;
+    using d        = r<1, 8>;
+    using result   = coinz::binary_to_nary_t<op, zero, a, b, c, d>;
+    using expected = op<op<op<a, b>, c>, d>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }
 
-TEST(BinaryOpApplicatorTest, five_values)
+TEST(BinaryToNaryTest, five_values)
 {
-    auto wrapper = coinz::binary_to_nary{[](int a, int b) { return a + b; }, 0};
-    EXPECT_EQ(111, wrapper(1, 3, 4, 2, 101));
+    using a        = r<1, 2>;
+    using b        = r<2, 3>;
+    using c        = r<1, 4>;
+    using d        = r<1, 8>;
+    using e        = r<3, 7>;
+    using result   = coinz::binary_to_nary_t<op, zero, a, b, c, d, e>;
+    using expected = op<op<op<op<a, b>, c>, d>, e>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }

@@ -20,16 +20,28 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#pragma once
 
-#include <coinz/tuple/find_type.hpp>
-#include <tuple>
+#include <ratio>
 
 
-class not_found {
+namespace coinz {
+
+template<typename T>
+struct to_ratio {
 };
 
-int main()
-{
-    auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    return coinz::tuple::find_type_v<not_found, decltype(dummy)>;
-}
+template<auto i, template<typename T, T c> typename IntegralConstant>
+struct to_ratio<IntegralConstant<decltype(i), i>> {
+    using type = ::std::ratio<i>;
+};
+
+template<auto i, template<auto c> typename IntegralConstant>
+struct to_ratio<IntegralConstant<i>> {
+    using type = ::std::ratio<i>;
+};
+
+template<typename T>
+using to_ratio_t = typename to_ratio<T>::type;
+
+}  // namespace coinz

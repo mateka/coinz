@@ -20,54 +20,39 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#pragma once
 
-namespace coinz {
+#include <coinz/i_tail.hpp>
+#include <type_traits>
 
-template<
-    template<typename, typename>
-    class BinaryOp,
-    typename Init,
-    typename... Args>
-struct binary_to_nary {
-};
+// clang-format: off
+#include <gtest/gtest.h>
 
-template<
-    template<typename, typename>
-    class BinaryOp,
-    typename Init,
-    typename HeadArg,
-    typename... TailArgs>
-struct binary_to_nary<BinaryOp, Init, HeadArg, TailArgs...> {
-    using type = BinaryOp<
-        typename binary_to_nary<BinaryOp, HeadArg, TailArgs...>::type,
-        Init>;
-};
+// clang-format: on
 
-template<
-    template<typename, typename>
-    class BinaryOp,
-    typename Init,
-    typename Arg1,
-    typename Arg2>
-struct binary_to_nary<BinaryOp, Init, Arg1, Arg2> {
-    using type = BinaryOp<Arg2, BinaryOp<Arg1, Init>>;
-};
+TEST(ITailTest, from_first)
+{
+    using result   = coinz::i_tail_t<0, char, short, int>;
+    using expected = coinz::types<char, short, int>;
+    ASSERT_TRUE((::std::is_same_v<expected, result>) );
+}
 
-template<
-    template<typename, typename>
-    class BinaryOp,
-    typename Init,
-    typename Arg>
-struct binary_to_nary<BinaryOp, Init, Arg> {
-    using type = BinaryOp<Arg, Init>;
-};
+TEST(ITailTest, from_second)
+{
+    using result   = coinz::i_tail_t<1, char, short, int>;
+    using expected = coinz::types<short, int>;
+    ASSERT_TRUE((::std::is_same_v<expected, result>) );
+}
 
-template<
-    template<typename, typename>
-    class BinaryOp,
-    typename Init,
-    typename... Args>
-using binary_to_nary_t = typename binary_to_nary<BinaryOp, Init, Args...>::type;
+TEST(ITailTest, from_third)
+{
+    using result   = coinz::i_tail_t<2, char, short, int, long>;
+    using expected = coinz::types<int, long>;
+    ASSERT_TRUE((::std::is_same_v<expected, result>) );
+}
 
-}  // namespace coinz
+TEST(ITailTest, from_last)
+{
+    using result   = coinz::i_tail_t<3, char, short, int, long>;
+    using expected = coinz::types<long>;
+    ASSERT_TRUE((::std::is_same_v<expected, result>) );
+}

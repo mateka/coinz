@@ -22,34 +22,27 @@
  */
 #pragma once
 
-#include <coinz/binary_to_nary.hpp>
-#include <tuple>
+#include <utility>
 
+namespace coinz {
 
-namespace coinz::tuple {
+template<typename... Args>
+struct types {
+};
 
-template<typename Op, typename Init, typename Tuple, ::std::size_t... Idx>
-auto partial_sum_by_index(
-    Tuple const &t, ::std::index_sequence<Idx...>, Op op, Init init = {})
-{
-    auto op_ =
-        binary_to_nary(::std::forward<Op>(op), ::std::forward<Init>(init));
-    return op_(std::get<Idx>(t)...);
-}
+template<::std::size_t I, typename Head, typename... Tail>
+struct i_tail {
+    static_assert(I <= sizeof...(Tail), "Tail is too short");
 
-template<std::size_t N, typename Op, typename Init, typename... Args>
-auto partial_sum(::std::tuple<Args...> const &t, Op op, Init init = {})
-{
-    if constexpr (N == 0) {
-        return init;
-    }
-    else {
-        return partial_sum_by_index(
-            t,
-            ::std::make_index_sequence<N>(),
-            ::std::forward<Op>(op),
-            ::std::forward<Init>(init));
-    }
-}
+    using type = typename i_tail<I - 1, Tail...>::type;
+};
 
-}  // namespace coinz::tuple
+template<typename Head, typename... Args>
+struct i_tail<0, Head, Args...> {
+    using type = types<Head, Args...>;
+};
+
+template<::std::size_t I, typename A0, typename... Args>
+using i_tail_t = typename i_tail<I, A0, Args...>::type;
+
+}  // namespace coinz

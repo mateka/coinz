@@ -20,45 +20,30 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#pragma once
 
-#include <tuple>
+#include <coinz/to_ratio.hpp>
 #include <type_traits>
 
-namespace coinz::tuple {
 
-namespace details {
-    template<typename T1, typename T2>
-    constexpr bool is_same_v =
-        ::std::is_same_v<::std::remove_cv_t<T1>, ::std::remove_cv_t<T2>>;
+// clang-format: off
+#include <gtest/gtest.h>
 
-    template<typename T, ::std::size_t I, typename Tuple, bool Found = false>
-    struct find_type
-        : find_type<
-              T,
-              I + 1,
-              Tuple,
-              details::is_same_v<T, ::std::tuple_element_t<I + 1, Tuple>>> {
-    };
+// clang-format: on
 
-    template<typename T, ::std::size_t I, typename Tuple>
-    struct find_type<T, I, Tuple, true>
-        : ::std::integral_constant<::std::size_t, I> {
-        static_assert(
-            I < ::std::tuple_size_v<Tuple>, "Type not found in tuple");
-    };
-}  // namespace details
+TEST(ToRatioTests, from_std_integral_constant)
+{
+    using result   = coinz::to_ratio_t<::std::integral_constant<int, 2>>;
+    using expected = ::std::ratio<2>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
+}
 
-template<typename T, typename Tuple>
-struct find_type
-    : details::find_type<
-          T,
-          0,
-          Tuple,
-          details::is_same_v<T, ::std::tuple_element_t<0, Tuple>>> {
+template<short x>
+struct ic {
 };
 
-template<typename T, typename Tuple>
-constexpr ::std::size_t find_type_v = find_type<T, Tuple>::value;
-
-}  // namespace coinz::tuple
+TEST(ToRatioTests, from_custom_integral_constant)
+{
+    using result   = coinz::to_ratio_t<ic<3>>;
+    using expected = ::std::ratio<3>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
+}

@@ -21,28 +21,35 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <coinz/tuple/find_type.hpp>
-#include <tuple>
+#include <coinz/get_n.hpp>
+#include <type_traits>
+
 
 // clang-format: off
 #include <gtest/gtest.h>
 
 // clang-format: on
 
-TEST(TupleFindTypeTest, find_first)
+struct empty {
+};
+
+TEST(GetNTest, first)
 {
-    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(0, (coinz::tuple::find_type_v<int, decltype(dummy)>) );
+    using dummy = coinz::get_n_t<0, char, int, float, empty, int, long>;
+    constexpr auto result = ::std::is_same_v<char, dummy>;
+    ASSERT_TRUE(result);
 }
 
-TEST(TupleFindTypeTest, find_middle)
+TEST(GetNTest, middle)
 {
-    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(2, (coinz::tuple::find_type_v<decltype(2u), decltype(dummy)>) );
+    using dummy = coinz::get_n_t<2, char, int, float, empty, int, long>;
+    constexpr auto result = ::std::is_same_v<float, dummy>;
+    ASSERT_TRUE(result);
 }
 
-TEST(TupleFindTypeTest, find_last)
+TEST(GetNTest, last)
 {
-    constexpr auto const dummy = ::std::tuple{1, 2.5f, 2u, 3.5};
-    EXPECT_EQ(3, (coinz::tuple::find_type_v<double, decltype(dummy)>) );
+    using dummy = coinz::get_n_t<5, char, int, float, empty, int, long>;
+    constexpr auto result = ::std::is_same_v<long, dummy>;
+    ASSERT_TRUE(result);
 }
