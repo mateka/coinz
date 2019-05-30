@@ -27,13 +27,13 @@
 #include <coinz/i_tail.hpp>
 #include <coinz/to_ratio.hpp>
 
+
 // #include <coinz/make_tail_index_sequence.hpp>
 // #include <coinz/tuple/find_type.hpp>
 // #include <coinz/tuple/partial_sum.hpp>
 // #include <tuple>
 #include <cstdint>
 #include <type_traits>
-
 
 namespace coinz {
 
@@ -117,10 +117,10 @@ template<typename... Parts>
 class currency {
 public:
     template<::std::size_t I>
-    using type_n = typename get_n_t<I, Parts...>;
+    using type_n = get_n_t<I, Parts...>;
 
     template<::std::size_t I>
-    using amount_n = typename get_n_t<I, Parts...>;
+    using amount_n = get_n_t<I, Parts...>;
 
     // template<std::size_t I>
     // constexpr auto amount_n() const noexcept
