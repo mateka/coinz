@@ -24,9 +24,9 @@
 #include <coinz/to_ratio.hpp>
 #include <type_traits>
 
-
 // clang-format: off
 #include <gtest/gtest.h>
+
 
 // clang-format: on
 
@@ -34,6 +34,13 @@ TEST(ToRatioTests, from_std_integral_constant)
 {
     using result   = coinz::to_ratio_t<::std::integral_constant<int, 2>>;
     using expected = ::std::ratio<2>;
+    EXPECT_TRUE((::std::is_same_v<expected, result>) );
+}
+
+TEST(ToRatioTests, from_std_ratio)
+{
+    using result   = coinz::to_ratio_t<::std::ratio<1, 2>>;
+    using expected = ::std::ratio<1, 2>;
     EXPECT_TRUE((::std::is_same_v<expected, result>) );
 }
 

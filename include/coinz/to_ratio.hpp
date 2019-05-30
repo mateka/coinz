@@ -22,6 +22,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <ratio>
 
 
@@ -29,6 +30,11 @@ namespace coinz {
 
 template<typename T>
 struct to_ratio {
+};
+
+template<::std::intmax_t N, ::std::intmax_t D>
+struct to_ratio<::std::ratio<N, D>> {
+    using type = ::std::ratio<N, D>;
 };
 
 template<auto i, template<typename T, T c> typename IntegralConstant>
