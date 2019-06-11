@@ -28,5 +28,5 @@ gtest_discover_tests(coinz_tests)
 # add_compile_failure_test(
 #     NAME FailOnUnknownTypeInTuple
 #     SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tuple/failing_find_type_test.cpp
-#     INCLUDE_DIRECTORIES coinz_INCLUDES>
+#     INCLUDE_DIRECTORIES ${coinz_INCLUDES}>
 # )
