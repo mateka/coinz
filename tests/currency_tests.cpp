@@ -52,6 +52,22 @@ TEST(IntCurrencyIndexTest, type_n_last)
     EXPECT_TRUE(result);
 }
 
+TEST(IntCurrencyIndexTest, amount_n_first)
+{
+    // 1$ = 10 cents, store amount with 1/50 cent accuracy
+    using dummy           = coinz::currency<ic<100>, ic<50>>;
+    constexpr auto result = ::std::ratio_equal_v<r<100 * 50>, dummy::amount_n<0>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(IntCurrencyIndexTest, amount_n_last)
+{
+    // 1$ = 10 cents, store amount with 1/50 cent accuracy
+    using dummy           = coinz::currency<ic<100>, ic<50>>;
+    constexpr auto result = ::std::ratio_equal_v<r<50>, dummy::amount_n<1>>;
+    EXPECT_TRUE(result);
+}
+
 TEST(RatioCurrencyIndexTest, type_n_first)
 {
     using dummy           = coinz::currency<r<3, 2>, r<10>>;
@@ -66,13 +82,19 @@ TEST(RatioCurrencyIndexTest, type_n_last)
     EXPECT_TRUE(result);
 }
 
-// TEST(CurrencyIndexTest, check_amount_n_int)
-// {
-//     // 1$ = 10 cents, store amount with 1/50 cent accuracy
-//     constexpr auto dummy = coinz::currency<100, 50>{};
-//     EXPECT_EQ(100 * 50, dummy.amount_n<0>());
-//     EXPECT_EQ(50, dummy.amount_n<1>());
-// }
+TEST(RatioCurrencyIndexTest, amount_n_first)
+{
+    using dummy           = coinz::currency<r<3, 2>, r<10>>;
+    constexpr auto result = ::std::ratio_equal_v<r<30, 2>, dummy::amount_n<0>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(RatioCurrencyIndexTest, amount_n_last)
+{
+    using dummy           = coinz::currency<r<3, 2>, r<10>>;
+    constexpr auto result = ::std::ratio_equal_v<r<10>, dummy::amount_n<1>>;
+    EXPECT_TRUE(result);
+}
 
 // namespace {
 
