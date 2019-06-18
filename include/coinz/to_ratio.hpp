@@ -23,26 +23,61 @@
 #include <cstdint>
 #include <ratio>
 
-
 namespace coinz {
 
 template<typename T>
-struct to_ratio {
-};
+struct to_ratio;
 
-template<::std::intmax_t N, ::std::intmax_t D>
-struct to_ratio<::std::ratio<N, D>> {
-    using type = ::std::ratio<N, D>;
-};
+namespace detail {
+    template<::std::intmax_t N, ::std::intmax_t D>
+    inline ::std::true_type use_base_type(::std::ratio<N, D> const &)
+    {
+        return {};
+    }
+    template<auto i, template<typename T, T c> typename IntegralConstant>
+    inline ::std::true_type
+    use_base_type(IntegralConstant<decltype(i), i> const &)
+    {
+        return {};
+    }
+    template<auto i, template<auto c> typename IntegralConstant>
+    inline ::std::true_type use_base_type(IntegralConstant<i> const &)
+    {
+        return {};
+    }
+    inline ::std::false_type use_base_type(...) { return {}; }
 
-template<auto i, template<typename T, T c> typename IntegralConstant>
-struct to_ratio<IntegralConstant<decltype(i), i>> {
-    using type = ::std::ratio<i>;
-};
+    template<::std::intmax_t N, ::std::intmax_t D>
+    inline ::std::ratio<N, D> base_type(::std::ratio<N, D> const &)
+    {
+        return {};
+    }
+    template<auto i, template<typename T, T c> typename IntegralConstant>
+    inline ::std::ratio<i> base_type(IntegralConstant<decltype(i), i> const &)
+    {
+        return {};
+    }
+    template<auto i, template<auto c> typename IntegralConstant>
+    inline ::std::ratio<i> base_type(IntegralConstant<i> const &)
+    {
+        return {};
+    }
 
-template<auto i, template<auto c> typename IntegralConstant>
-struct to_ratio<IntegralConstant<i>> {
-    using type = ::std::ratio<i>;
+    template<typename T, typename UseBaseType = ::std::false_type>
+    struct to_ratio_impl {
+        using type = typename to_ratio<typename T::type>::type;
+    };
+    template<typename T>
+    struct to_ratio_impl<T, ::std::true_type> {
+        using type = decltype(detail::base_type(::std::declval<T>()));
+    };
+}  // namespace detail
+
+template<typename T>
+struct to_ratio
+    : detail::to_ratio_impl<
+          T,
+          decltype(detail::use_base_type(::std::declval<T>()))> {
 };
 
 template<typename T>
