@@ -11,7 +11,7 @@ add_executable(
     binary_to_nary_tests.cpp
     i_tail_tests.cpp
     to_ratio_tests.cpp
-
+	find_type_tests.cpp
     currency_tests.cpp
 )
 target_link_libraries(
@@ -24,9 +24,9 @@ target_link_libraries(
 
 gtest_discover_tests(coinz_tests)
 
-# get_target_property(coinz_INCLUDES coinz::coinz INTERFACE_INCLUDE_DIRECTORIES)
-# add_compile_failure_test(
-#     NAME FailOnUnknownTypeInTuple
-#     SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tuple/failing_find_type_test.cpp
-#     INCLUDE_DIRECTORIES ${coinz_INCLUDES}>
-# )
+get_target_property(coinz_INCLUDES coinz::coinz INTERFACE_INCLUDE_DIRECTORIES)
+add_compile_failure_test(
+    NAME FailOnFindingUnknownType
+    SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/failing_find_type_test.cpp
+    INCLUDE_DIRECTORIES ${coinz_INCLUDES}>
+)
