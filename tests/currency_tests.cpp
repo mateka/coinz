@@ -161,6 +161,56 @@ TEST(MetafunctionCurrencyTypeTest, amount_n_last)
     EXPECT_TRUE(result);
 }
 
+TEST(MetafunctionCurrencyTypeTest, type_first)
+{
+    using namespace metafunction;
+    using dummy           = coinz::currency<gold, silver, copper>;
+    constexpr auto result = ::std::is_same_v<gold, dummy::type<gold>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(MetafunctionCurrencyTypeTest, type_middle)
+{
+    using namespace metafunction;
+    using dummy           = coinz::currency<gold, silver, copper>;
+    constexpr auto result = ::std::is_same_v<silver, dummy::type<silver>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(MetafunctionCurrencyTypeTest, type_last)
+{
+    using namespace metafunction;
+    using dummy           = coinz::currency<gold, silver, copper>;
+    constexpr auto result = ::std::is_same_v<copper, dummy::type<copper>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(MetafunctionCurrencyTypeTest, amount_first)
+{
+    using namespace metafunction;
+    using dummy = coinz::currency<gold, silver, copper>;
+    constexpr auto result =
+        ::std::ratio_equal_v<r<39 * 13 * 10, 4 * 2>, dummy::amount<gold>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(MetafunctionCurrencyTypeTest, amount_middle)
+{
+    using namespace metafunction;
+    using dummy = coinz::currency<gold, silver, copper>;
+    constexpr auto result =
+        ::std::ratio_equal_v<r<13 * 10, 2>, dummy::amount<silver>>;
+    EXPECT_TRUE(result);
+}
+
+TEST(MetafunctionCurrencyTypeTest, amount_last)
+{
+    using namespace metafunction;
+    using dummy           = coinz::currency<gold, silver, copper>;
+    constexpr auto result = ::std::ratio_equal_v<r<10>, dummy::amount<copper>>;
+    EXPECT_TRUE(result);
+}
+
 namespace inheritance {
 
 struct gold : ::std::ratio<39, 4> {  // 12 3/4

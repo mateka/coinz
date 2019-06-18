@@ -24,6 +24,7 @@
 #include <coinz/get_n.hpp>
 #include <coinz/i_tail.hpp>
 #include <coinz/to_ratio.hpp>
+#include <coinz/find_type.hpp>
 #include <cstdint>
 #include <type_traits>
 
@@ -51,6 +52,12 @@ public:
 
     template<::std::size_t I>
     using amount_n = detail::multiply_t<typename i_tail<I, Parts...>::type>;
+
+    template<typename T>
+    using type = type_n<find_type_v<T, Parts...>>;
+	
+    template<typename T>
+    using amount = amount_n<find_type_v<T, Parts...>>;
 };
 
 }  // namespace coinz
