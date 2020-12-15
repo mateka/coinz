@@ -1,4 +1,3 @@
-find_package(GTest REQUIRED)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
@@ -18,8 +17,8 @@ target_link_libraries(
     coinz_tests
     PUBLIC
         coinz
-        GTest::GTest
-        GTest::Main
+		GTest::gtest
+        GTest::gtest_main
 )
 
 gtest_discover_tests(coinz_tests)
